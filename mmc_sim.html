@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>M/M/C Simulation Visualization</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>M/M/C Simulation Results</h1>
+    <table>
+        <tr>
+            <th>Customer</th>
+            <th>CP</th>
+            <th>CPL</th>
+            <th>Inter-arrival</th>
+            <th>Arrival</th>
+            <th>Service</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Turnaround</th>
+            <th>Wait Time</th>
+            <th>Response Time</th>
+        </tr>
+    </table>
+    <script>
+        function normalDistribution(x, mean, variance) {
+            return (1 / (Math.sqrt(2 * Math.PI * variance))) * Math.exp(-0.5 * Math.pow((x - mean) / Math.sqrt(variance), 2));
+        }
+
+        function mMC(lambda, service, c, ran_no) {
+            let s_no = [];
+            let cp = [];
+            let cpl = [0];
+            let int_arrival = [];
+            let arrival = [];
+            let start = [];
+            let end = [];
+            let TA = [];
+            let WT = [];
+            let RT = [];
+            let value = 0;
+
+            for (let x = 0; x < ran_no; x++) {
+                s_no.push(x);
+                value += normalDistribution(x, lambda, 1);
+                cp.push(parseFloat(value.toFixed(4)));
+                cpl.push(cp[cp.length - 1]);
+            }
+            cpl.pop();
+
+            for (let i = 0; i < ran_no; i++) {
+                let ran_var = parseFloat(Math.random()).toFixed(4);
+                for (let j = 0; j < ran_no; j++) {
+                    if (cpl[j] < ran_var && ran_var < cp[j]) {
+                        int_arrival.push(j);
+                    }
+                }
+            }
+
+            arrival.push(int_arrival[0]);
+            for (let i = 1; i < ran_no; i++) {
+                arrival.push(int_arrival[i] + arrival[i - 1]);
+            }
+
+            let servers = Array(c).fill(0); // Initialize server times
+            start.push(arrival[0]);
+            end.push(start[0] + service);
+            servers[0] = end[0];
+
+            for (let i = 1; i < ran_no; i++) {
+                let availableServer = servers.findIndex(server => server <= arrival[i]);
+                if (availableServer === -1) {
+                    availableServer = servers.indexOf(Math.min(...servers));
+                    start.push(servers[availableServer]);
+                    servers[availableServer] = servers[availableServer] + service;
+                } else {
+                    start.push(arrival[i]);
+                    servers[availableServer] = arrival[i] + service;
+                }
+                end.push(servers[availableServer]);
+            }
+
+            for (let i = 0; i < ran_no; i++) {
+                TA.push(end[i] - arrival[i]);
+                WT.push(TA[i] - service);
+                RT.push(start[i] - arrival[i]);
+            }
+
+            let result = {
+                CP: cp,
+                CPL: cpl,
+                'Inter-arrival': int_arrival,
+                Arrival: arrival,
+                Service: service,
+                Start: start,
+                End: end,
+                TurnAround: TA,
+                WaitTime: WT,
+                ResponseTime: RT
+            };
+
+            return result;
+        }
+
+        function displayResults(result) {
+            const table = document.querySelector("table");
+
+            for (let i = 0; i < result.CP.length; i++) {
+                const row = table.insertRow(-1);
+                row.insertCell(0).textContent = i + 1;
+                row.insertCell(1).textContent = result.CP[i].toFixed(4);
+                row.insertCell(2).textContent = result.CPL[i].toFixed(4);
+                row.insertCell(3).textContent = result['Inter-arrival'][i];
+                row.insertCell(4).textContent = result.Arrival[i];
+                row.insertCell(5).textContent = result.Service;
+                row.insertCell(6).textContent = result.Start[i];
+                row.insertCell(7).textContent = result.End[i];
+                row.insertCell(8).textContent = result.TurnAround[i];
+                row.insertCell(9).textContent = result.WaitTime[i];
+                row.insertCell(10).textContent = result.ResponseTime[i];
+            }
+        }
+
+        const lambda = parseFloat(prompt("Enter arrival rate (lambda): "));
+        const service = parseFloat(prompt("Enter service rate: "));
+        const c = parseInt(prompt("Enter the number of servers (c): "));
+        const ran_no = parseInt(prompt("Enter the number of random numbers: "));
+        const result = mMC(lambda, service, c, ran_no);
+        displayResults(result);
+    </script>
+</body>
+
+</html>

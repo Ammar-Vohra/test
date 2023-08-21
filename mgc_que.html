@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Queueing Theory Calculator</title>
+</head>
+<body>
+    <label for="arrivalMean">Enter arrival mean: </label>
+    <input type="text" id="arrivalMean"><br><br>
+
+    <label for="arrivalVariance">Enter arrival variance: </label>
+    <input type="text" id="arrivalVariance"><br><br>
+
+    <label for="serviceVariance">Enter service variance: </label>
+    <input type="text" id="serviceVariance"><br><br>
+
+    <label for="numServers">Enter number of servers: </label>
+    <input type="text" id="numServers"><br><br>
+
+    <button onclick="calculateMetrics()">Calculate Metrics</button><br><br>
+
+    <p id="results"></p>
+
+    <script>
+        function calculateMetrics() {
+            const lemdaInput = parseFloat(document.getElementById("arrivalMean").value);
+            const arrVarInput = parseFloat(document.getElementById("arrivalVariance").value);
+            const serVarInput = parseFloat(document.getElementById("serviceVariance").value);
+            const numServers = parseInt(document.getElementById("numServers").value);
+
+            const lembda = 1 / lemdaInput;
+            const meu = 1 / ((arrVarInput + serVarInput) / 2);
+            const c = numServers;
+            const p = lembda / (c * meu);
+            const Ca = arrVarInput / (1 / lembda) ** 2;
+            const Cs = serVarInput / (1 / meu) ** 2;
+
+            let value = 0;
+            for (let m = 0; m < c; m++) {
+                value +=
+                    ((Math.pow(c * p, m) / factorial(m)) +
+                    ((Math.pow(c * p, c) / (factorial(c) * (1 - p)))));
+            }
+
+            const Pnot = 1 / value;
+            let Lq = (Pnot * p * Math.pow(lembda / meu, c)) / (factorial(c) * (1 - p) ** 2);
+            Lq *= ((Ca + Cs) / 2);
+            const Wq = Lq / lembda;
+            const Ws = Wq + (1 / meu);
+            const Ls = Ws * lembda;
+            const ρ = 1 - p;
+
+            const results = `
+                Utilization Factor: ${p}<br>
+                Length of Queue: ${Lq}<br>
+                Length of System: ${Ls}<br>
+                Wait in Queue: ${Wq}<br>
+                Wait in System: ${Ws}<br>
+                Proportion of the Time of Server in Idle: ${ρ}
+            `;
+
+            document.getElementById("results").innerHTML = results;
+        }
+
+        function factorial(n) {
+            if (n === 0 || n === 1) {
+                return 1;
+            }
+            return n * factorial(n - 1);
+        }
+    </script>
+</body>
+</html>

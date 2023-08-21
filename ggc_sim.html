@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>G/G/C Simulation Visualization</title>
+</head>
+<body>
+<div>
+  <label for="lambda">Arrival Rate (lambda): </label>
+  <input type="number" id="lambda">
+</div>
+<div>
+  <label for="mu">Service Rate (mu): </label>
+  <input type="number" id="mu">
+</div>
+<div>
+  <label for="variance">Variance: </label>
+  <input type="number" id="variance">
+</div>
+<div>
+  <label for="c">Number of Servers (c): </label>
+  <input type="number" id="c">
+</div>
+<div>
+  <label for="ran_no">Number of Random Numbers: </label>
+  <input type="number" id="ran_no">
+</div>
+<div>
+  <button onclick="runSimulation()">Run Simulation</button>
+</div>
+<div id="simulationResults"></div>
+
+<script>
+function normalDistribution(x, mean, variance) {
+    return (1 / (Math.sqrt(2 * Math.PI * variance))) * Math.exp(-0.5 * Math.pow((x - mean) / Math.sqrt(variance), 2));
+}
+
+function ggC(lambda, mu, variance, c, ran_no) {
+    let s_no = [];
+    let cp = [];
+    let cpl = [0];
+    let int_arrival = [];
+    let arrival = [];
+    let service = [];
+    let start = [];
+    let end = [];
+    let TA = [];
+    let WT = [];
+    let RT = [];
+    let value = 0;
+
+    for (let x = 0; x < ran_no; x++) {
+        s_no.push(x);
+        value += normalDistribution(x, lambda, variance);
+        cp.push(parseFloat(value.toFixed(4)));
+        cpl.push(cp[cp.length - 1]);
+    }
+    cpl.pop();
+
+    for (let i = 0; i < ran_no; i++) {
+        let ran_var = parseFloat(Math.random()).toFixed(4);
+        for (let j = 0; j < ran_no; j++) {
+            if (cpl[j] < ran_var && ran_var < cp[j]) {
+                int_arrival.push(j);
+            }
+        }
+    }
+
+    arrival.push(int_arrival[0]);
+    for (let i = 1; i < ran_no; i++) {
+        arrival.push(int_arrival[i] + arrival[i - 1]);
+    }
+
+    for (let i = 0; i < ran_no; i++) {
+        service.push(Math.ceil(-mu * Math.log(Math.random())));
+    }
+
+    let servers = Array(c).fill(0); // Initialize server times
+    start.push(arrival[0]);
+    end.push(start[0] + service[0]);
+    servers[0] = end[0];
+
+    for (let i = 1; i < ran_no; i++) {
+        let availableServer = servers.findIndex(server => server <= arrival[i]);
+        if (availableServer === -1) {
+            availableServer = servers.indexOf(Math.min(...servers));
+            start.push(servers[availableServer]);
+            servers[availableServer] = servers[availableServer] + service[i];
+        } else {
+            start.push(arrival[i]);
+            servers[availableServer] = arrival[i] + service[i];
+        }
+        end.push(servers[availableServer]);
+    }
+
+    for (let i = 0; i < ran_no; i++) {
+        TA.push(end[i] - arrival[i]);
+        WT.push(TA[i] - service[i]);
+        RT.push(start[i] - arrival[i]);
+    }
+
+    let result = {
+        CP: cp,
+        CPL: cpl,
+        InterArrival: int_arrival,
+        Arrival: arrival,
+        Service: service,
+        Start: start,
+        End: end,
+        TurnAround: TA,
+        WaitTime: WT,
+        ResponseTime: RT
+    };
+
+    return result;
+}
+
+function runSimulation() {
+    const lambda = parseFloat(document.getElementById("lambda").value);
+    const mu = parseFloat(document.getElementById("mu").value);
+    const variance = parseFloat(document.getElementById("variance").value);
+    const c = parseInt(document.getElementById("c").value);
+    const ran_no = parseInt(document.getElementById("ran_no").value);
+
+    const simulationResult = ggC(lambda, mu, variance, c, ran_no);
+    displayResults(simulationResult);
+}
+
+function displayResults(result) {
+    const resultDiv = document.getElementById("simulationResults");
+    resultDiv.innerHTML = "<h2>Simulation Results</h2>";
+
+    const table = document.createElement("table");
+    const tableHeader = table.createTHead();
+    const headerRow = tableHeader.insertRow();
+    for (const key in result) {
+        const headerCell = document.createElement("th");
+        headerCell.textContent = key;
+        headerRow.appendChild(headerCell);
+    }
+    
+    const tableBody = table.createTBody();
+    for (let i = 0; i < result.CP.length; i++) {
+        const row = tableBody.insertRow();
+        for (const key in result) {
+            const cell = row.insertCell();
+            cell.textContent = result[key][i];
+        }
+    }
+
+    resultDiv.appendChild(table);
+}
+
+</script>
+</body>
+</html>

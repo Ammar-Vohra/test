@@ -1,0 +1,144 @@
+/* Reset default margins and padding */
+body, h1, h2, h3, h4, p, button {
+    margin: 0;
+    padding: 0;
+    
+}
+
+/* Set a background color and text color */
+body {
+    background-color: #9b5454;
+    color: #333;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    align-items: center;
+}
+
+/* html, body {
+    width: 100%;
+    height:100%;
+  }
+  
+  body {
+      background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+  }
+  
+  @keyframes gradient {
+      0% {
+          background-position: 0% 50%;
+      }
+      50% {
+          background-position: 100% 50%;
+      }
+      100% {
+          background-position: 0% 50%;
+      }
+  } */
+
+/* Style the slider container */
+.slider {
+    background-color: #ffffff;
+    border: 1px solid #4b0b0b;
+    border-radius: 0%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+    padding: 20px;
+    width: 80%;
+    width: 100%;
+    height:100%;
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    
+    
+}
+
+
+
+/* Style the box containing the content */
+.box {
+    text-align: center;
+    margin-bottom: 20px;
+    animation: name duration timing-function delay iteration-count direction fill-mode;
+
+    
+    
+   
+   
+}
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+    
+button:hover{
+    width: 300px;
+    color: #000;
+     
+}
+    
+
+
+
+/* Style the headings */
+h1 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+h4 {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+/* Style the buttons */
+button {
+    background-color: #3498db;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 5px;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease-in-out;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+/* Style the links */
+/* a {
+    color: #3498db;
+    text-decoration: none;
+} */
+
+a:hover {
+    text-decoration: underline;
+}
+
+
+
+
+
